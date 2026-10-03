@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AtomGit: NervJS/taro 开放原子开源代码仓与跨端全景平台</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            atom: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+              dark: '#161b22',
+              card: '#0d1117',
+              border: '#30363d'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    pre, code, .font-mono {
+      font-family: 'Fira Code', monospace;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .phone-notch {
+      width: 120px;
+      height: 18px;
+      background: #000;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+    }
+    .tab-active {
+      border-bottom: 2px solid #e11d48;
+      color: #e11d48;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 min-h-full flex flex-col antialiased selection:bg-rose-500 selection:text-white">
+
+  <!-- Top Global AtomGit Navbar -->
+  <header class="bg-[#161b22] text-slate-200 border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center space-x-6">
+        <!-- Logo -->
+        <a href="javascript:void(0)" onclick="switchTab('code')" class="flex items-center space-x-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-rose-600 to-red-500 flex items-center justify-center font-black text-white text-base shadow-md group-hover:scale-105 transition-transform">
+            A
+          </div>
+          <div class="flex flex-col">
+            <span class="font-bold tracking-tight text-white leading-none text-base group-hover:text-rose-400 transition-colors">AtomGit</span>
+            <span class="text-[9px] text-rose-400 font-mono tracking-widest uppercase">OpenAtom Foundation</span>
+          </div>
+        </a>
+
+        <!-- Main Navigation Links -->
+        <nav class="hidden md:flex items-center space-x-5 text-xs font-medium text-slate-300">
+          <a href="javascript:void(0)" onclick="switchTab('code')" class="hover:text-white transition-colors">代码仓</a>
+          <a href="https://atomgit.com" target="_blank" class="hover:text-white transition-colors flex items-center gap-1">
+            开源广场 <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <a href="https://taro.zone" target="_blank" class="hover:text-white transition-colors flex items-center gap-1">
+            Taro 官方文档 <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <a href="https://openatom.cn" target="_blank" class="hover:text-white transition-colors flex items-center gap-1">
+            开放原子开源基金会 <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+        </nav>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Quick Search bar -->
+        <div class="relative hidden sm:block">
+          <svg class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input
+            id="global-search"
+            type="text"
+            placeholder="搜索代码、文件或 Issue..."
+            oninput="handleGlobalSearch(this.value)"
+            class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-md pl-8 pr-3 py-1.5 w-60 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 placeholder-slate-500 transition-all"
+          />
+        </div>
+
+        <!-- Language toggle button -->
+        <button onclick="toggleLang()" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 border border-slate-700 hover:border-slate-500 text-slate-300 transition-colors flex items-center space-x-1">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="lang-label">中文 / EN</span>
+        </button>
+
+        <!-- WAF Status Quick Pill -->
+        <button onclick="switchTab('waf-shield')" id="nav-waf-pill" class="px-2.5 py-1 text-xs rounded font-medium flex items-center space-x-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+          <span id="nav-waf-text">WAF事件 418</span>
+        </button>
+
+        <!-- User Profile Avatar -->
+        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-rose-600 text-white flex items-center justify-center text-[11px] font-bold shadow ring-1 ring-white/20 cursor-pointer">
+          JD
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Repository Hero Banner -->
+  <section class="bg-white border-b border-slate-200 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-1">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Title & Badges -->
+        <div class="flex items-start space-x-3.5">
+          <div class="p-3 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 shadow-sm shrink-0">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
+              <a href="https://atomgit.com/NervJS" target="_blank" class="text-base sm:text-lg font-bold text-rose-600 hover:underline">NervJS</a>
+              <span class="text-slate-400 font-semibold">/</span>
+              <a href="https://atomgit.com/NervJS/taro" target="_blank" class="text-lg sm:text-2xl font-black text-slate-900 hover:underline">taro</a>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                Public 开源
+              </span>
+              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
+                <svg class="w-3 h-3 text-rose-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                开放原子开源基金会捐赠项目
+              </span>
+            </div>
+            <p id="repo-desc" class="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-3xl leading-relaxed">
+              Taro 是一套遵循 React/Vue 语法规范的多端统一开发解决方案，支持编写一套代码输出到微信小程序、支付宝、百度、抖音、QQ、京东小程序、Web (H5)、React Native 以及 HarmonyOS NEXT！
+            </p>
+          </div>
+        </div>
+
+        <!-- Git Actions: Star, Fork, Watch -->
+        <div class="flex items-center space-x-2 shrink-0 self-start lg:self-center">
+          <button id="star-btn" onclick="handleToggleStar()" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 shadow-xs flex items-center space-x-1.5 transition-all">
+            <svg id="star-icon" class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            <span id="star-btn-label">标星 Star</span>
+            <span id="star-count" class="border-l border-slate-200 pl-1.5 font-mono text-slate-800 font-bold">35,240</span>
+          </button>
+
+          <button onclick="handleWatchNotice()" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 shadow-xs flex items-center space-x-1.5 transition-all">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <span>关注 Watch</span>
+            <span class="border-l border-slate-200 pl-1.5 font-mono text-slate-600">1,340</span>
+          </button>
+
+          <button onclick="handleForkNotice()" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 shadow-xs flex items-center space-x-1.5 transition-all">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+            <span>派生 Fork</span>
+            <span class="border-l border-slate-200 pl-1.5 font-mono text-slate-600">5,120</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center space-x-2 mt-6 overflow-x-auto scrollbar-thin border-b border-slate-200">
+        <button id="tab-btn-code" onclick="switchTab('code')" class="tab-active flex items-center space-x-2 px-4 py-2.5 text-xs sm:text-sm whitespace-nowrap transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+          <span id="tab-label-code">代码 Code</span>
+        </button>
+
+        <button id="tab-btn-issues" onclick="switchTab('issues')" class="flex items-center space-x-2 px-4 py-2.5 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="tab-label-issues">问题 (Issues)</span>
+          <span id="issues-badge-count" class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 font-mono">3</span>
+        </button>
+
+        <button id="tab-btn-pulls" onclick="switchTab('pulls')" class="flex items-center space-x-2 px-4 py-2.5 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2"/></svg>
+          <span id="tab-label-pulls">合并请求 (PR)</span>
+          <span class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 font-mono">2</span>
+        </button>
+
+        <button id="tab-btn-playground" onclick="switchTab('playground')" class="flex items-center space-x-2 px-4 py-2.5 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap transition-colors">
+          <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span class="font-bold text-indigo-600">Taro 4.0 多端真机模拟器</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-100 text-indigo-700 font-bold uppercase">Live</span>
+        </button>
+
+        <button id="tab-btn-waf" onclick="switchTab('waf-shield')" class="flex items-center space-x-2 px-4 py-2.5 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap transition-colors">
+          <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span id="tab-label-waf">WAF 安全防御 & 申诉</span>
+          <span id="waf-badge-tab" class="text-[10px] px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-700 font-bold">Event 418</span>
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- VIEW 1: CODE REPOSITORY -->
+    <div id="view-code" class="space-y-6">
+      <!-- Git Branch & Action Toolbar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center space-x-3 flex-wrap gap-y-2">
+          <!-- Branch Dropdown -->
+          <div class="relative inline-flex">
+            <select id="branch-select" onchange="handleBranchChange(this.value)" class="appearance-none bg-white border border-slate-300 text-slate-800 text-xs font-bold py-1.5 pl-8 pr-8 rounded-md shadow-xs focus:outline-none focus:ring-1 focus:ring-rose-500 cursor-pointer">
+              <option value="master">branch: master</option>
+              <option value="next">branch: next (v4.0.8-beta)</option>
+              <option value="feat/v4.0">branch: feat/v4.0</option>
+              <option value="harmonyos-next">branch: feat/harmonyos-next</option>
+            </select>
+            <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-3 text-xs text-slate-500 border-l border-slate-200 pl-3">
+            <span><strong class="font-mono text-slate-800 font-semibold">1,429</strong> 次提交 (commits)</span>
+            <span>•</span>
+            <span><strong class="font-mono text-slate-800 font-semibold">28</strong> 分支 (branches)</span>
+            <span>•</span>
+            <span><strong class="font-mono text-slate-800 font-semibold">342</strong> 标签 (tags)</span>
+          </div>
+        </div>
+
+        <!-- Clone & Action Buttons -->
+        <div class="flex items-center space-x-2">
+          <button onclick="openCloneModal()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3.5 py-1.5 rounded-md shadow-xs flex items-center space-x-1.5 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>克隆 / 下载代码</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- File Explorer Directory & Table -->
+      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs">
+        <!-- Commit Ribbon -->
+        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between text-xs text-slate-600">
+          <div class="flex items-center space-x-2.5 truncate">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80" alt="JD" class="w-5 h-5 rounded-full object-cover ring-1 ring-slate-300">
+            <span class="font-bold text-slate-900">NervJS-Core</span>
+            <span class="text-slate-500 truncate" id="latest-commit-text">feat(harmony): support HarmonyOS NEXT ArkUI component interop (#3892)</span>
+          </div>
+          <div class="flex items-center space-x-3 shrink-0">
+            <span class="font-mono text-slate-500 bg-slate-200/70 px-1.5 py-0.5 rounded text-[11px]">a6bad06</span>
+            <span class="text-slate-400">2 小时前</span>
+          </div>
+        </div>
+
+        <!-- File Table Rows -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 bg-slate-50/50 text-slate-400">
+                <th class="py-2.5 px-4 font-medium">名称 / 目录</th>
+                <th class="py-2.5 px-4 font-medium">最新提交信息</th>
+                <th class="py-2.5 px-4 font-medium text-right">更新时间</th>
+              </tr>
+            </thead>
+            <tbody id="file-table-body" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Dynamically rendered via renderFileExplorer() -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- File Content Viewer -->
+      <div id="file-viewer-container" class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs">
+        <div class="bg-slate-100/90 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between text-xs">
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span id="file-viewer-path" class="font-mono font-bold text-slate-800">README.md</span>
+            <span id="file-viewer-size" class="text-slate-400 text-[11px]">(14.2 KB)</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="copyCurrentFileContent()" class="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-300 rounded text-slate-700 text-xs font-medium flex items-center space-x-1 shadow-2xs transition-colors">
+              <svg id="copy-icon" class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              <span id="copy-text">复制代码</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-950 text-slate-100 font-mono text-xs leading-relaxed overflow-x-auto">
+          <pre id="file-code-block"><code><!-- Rendered file contents --></code></pre>
+        </div>
+      </div>
+
+      <!-- Language & Community Stats Section -->
+      <div class="bg-white rounded-lg border border-slate-200 p-5 shadow-xs space-y-4">
+        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+          代码语言统计 (Language Composition)
+        </h3>
+        <div class="w-full h-2.5 bg-slate-100 rounded-full flex overflow-hidden">
+          <div style="width: 76.4%; background-color: #3178c6;" title="TypeScript: 76.4%"></div>
+          <div style="width: 18.2%; background-color: #f7df1e;" title="JavaScript: 18.2%"></div>
+          <div style="width: 3.8%; background-color: #c6538c;" title="CSS/SCSS: 3.8%"></div>
+          <div style="width: 1.6%; background-color: #89e051;" title="Other: 1.6%"></div>
+        </div>
+        <div class="flex flex-wrap gap-4 text-xs">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#3178c6]"></span>
+            <span class="font-medium text-slate-700">TypeScript</span>
+            <span class="text-slate-400 font-mono">76.4%</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#f7df1e]"></span>
+            <span class="font-medium text-slate-700">JavaScript</span>
+            <span class="text-slate-400 font-mono">18.2%</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#c6538c]"></span>
+            <span class="font-medium text-slate-700">CSS / SCSS</span>
+            <span class="text-slate-400 font-mono">3.8%</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#89e051]"></span>
+            <span class="font-medium text-slate-700">HarmonyOS ArkTS / Other</span>
+            <span class="text-slate-400 font-mono">1.6%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: ISSUES TRACKER -->
+    <div id="view-issues" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="relative flex-1 max-w-md">
+          <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input
+            id="issue-search-input"
+            type="text"
+            oninput="filterIssues(this.value)"
+            placeholder="搜索 Issue 标题、标签或提交人..."
+            class="w-full bg-white border border-slate-300 rounded-md pl-9 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-rose-500"
+          />
+        </div>
+        <button onclick="openNewIssueModal()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-4 py-2 rounded-md shadow-xs transition-colors self-start sm:self-auto flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>提交新 Issue</span>
+        </button>
+      </div>
+
+      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100" id="issues-list-container">
+        <!-- Rendered via renderIssues() -->
+      </div>
+    </div>
+
+    <!-- VIEW 3: PULL REQUESTS -->
+    <div id="view-pulls" class="hidden space-y-4">
+      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100" id="prs-list-container">
+        <!-- Rendered via renderPRs() -->
+      </div>
+    </div>
+
+    <!-- VIEW 4: TARO LIVE SIMULATOR -->
+    <div id="view-playground" class="hidden space-y-6">
+      <div class="bg-gradient-to-r from-rose-600 via-red-600 to-indigo-700 rounded-2xl p-6 text-white shadow-md">
+        <div class="flex items-center space-x-3">
+          <div class="p-2 bg-white/10 rounded-xl backdrop-blur-xs">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-extrabold tracking-tight">Taro 4.0 多端真机跨平台实时模拟器</h2>
+            <p class="text-xs text-rose-100 mt-0.5">
+              一套代码，统一运行！支持在 微信小程序、支付宝小程序、HarmonyOS NEXT、Web H5 间实时无缝预览。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Editor Control Panel -->
+        <div class="lg:col-span-6 bg-slate-900 rounded-xl border border-slate-800 p-4 text-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs font-mono text-slate-400">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                <span class="ml-2 font-bold text-slate-300">src/pages/index/index.tsx</span>
+              </div>
+              <span class="text-indigo-400 font-semibold">Taro + React + ArkUI</span>
+            </div>
+
+            <div class="mt-3">
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5">自定义组件主标题文字：</label>
+              <input 
+                id="sim-custom-text" 
+                type="text" 
+                value="探索 Taro 4.0 跨端框架" 
+                oninput="updateSimulatorPreview()"
+                class="w-full bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded px-3 py-2 focus:outline-none focus:border-rose-500 font-mono"
+              />
+            </div>
+
+            <pre class="mt-4 p-3 bg-slate-950 rounded-lg text-[11px] font-mono leading-relaxed overflow-x-auto text-emerald-400 border border-slate-800">
+<span class="text-indigo-400">import</span> React, { useState } <span class="text-indigo-400">from</span> <span class="text-amber-300">'@tarojs/taro'</span>;
+<span class="text-indigo-400">import</span> { View, Text, Button } <span class="text-indigo-400">from</span> <span class="text-amber-300">'@tarojs/components'</span>;
+
+<span class="text-indigo-400">export default function</span> <span class="text-yellow-300">Index</span>() {
+  <span class="text-slate-500">// 跨端响应式状态</span>
+  <span class="text-indigo-400">const</span> [count, setCount] = useState(<span class="text-rose-400" id="sim-code-count">0</span>);
+  
+  <span class="text-indigo-400">return</span> (
+    <span class="text-blue-400"><View</span> <span class="text-purple-300">className</span>=<span class="text-amber-300">"taro-page"</span><span class="text-blue-400">></span>
+      <span class="text-blue-400"><Text</span> <span class="text-purple-300">className</span>=<span class="text-amber-300">"title"</span><span class="text-blue-400">></span><span id="sim-code-preview-text">探索 Taro 4.0 跨端框架</span><span class="text-blue-400"></Text></span>
+      <span class="text-blue-400"><Button</span> <span class="text-purple-300">onClick</span>={() => setCount(count + 1)}<span class="text-blue-400">></span>
+        实时点击: {count} 次
+      <span class="text-blue-400"></Button></span>
+    <span class="text-blue-400"></View></span>
+  );
+}
+            </pre>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400">选择组件主题色：</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="changeSimTheme('#e11d48')" class="w-5 h-5 rounded-full bg-rose-600 ring-2 ring-white"></button>
+              <button onclick="changeSimTheme('#2563eb')" class="w-5 h-5 rounded-full bg-blue-600 hover:ring-2 hover:ring-white"></button>
+              <button onclick="changeSimTheme('#7c3aed')" class="w-5 h-5 rounded-full bg-purple-600 hover:ring-2 hover:ring-white"></button>
+              <button onclick="changeSimTheme('#059669')" class="w-5 h-5 rounded-full bg-emerald-600 hover:ring-2 hover:ring-white"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone Device Mockup -->
+        <div class="lg:col-span-6 flex flex-col items-center">
+          <!-- Platform Tabs -->
+          <div class="flex items-center space-x-1.5 p-1 bg-slate-200 rounded-lg mb-4 text-xs font-semibold">
+            <button onclick="setSimPlatform('weapp')" id="sim-plat-weapp" class="px-3 py-1.5 rounded-md bg-white text-slate-800 shadow-xs">微信小程序</button>
+            <button onclick="setSimPlatform('alipay')" id="sim-plat-alipay" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900">支付宝</button>
+            <button onclick="setSimPlatform('harmony')" id="sim-plat-harmony" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900">HarmonyOS NEXT</button>
+            <button onclick="setSimPlatform('h5')" id="sim-plat-h5" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900">Web H5</button>
+          </div>
+
+          <!-- Phone Chassis -->
+          <div class="w-[310px] sm:w-[330px] h-[520px] bg-slate-900 rounded-[38px] p-3 shadow-2xl ring-8 ring-slate-800 relative flex flex-col">
+            <div class="phone-notch"></div>
+
+            <!-- Screen Area -->
+            <div class="w-full h-full bg-slate-50 rounded-[28px] overflow-hidden flex flex-col relative font-sans text-slate-900 select-none">
+              <!-- Mini Program Status Bar -->
+              <div id="sim-topbar" class="h-10 bg-slate-900 text-white px-4 pt-2.5 flex items-center justify-between text-[10px] font-bold">
+                <span id="sim-status-brand">WeChat Mini Program</span>
+                <div class="flex items-center space-x-1">
+                  <span>5G</span>
+                  <div class="w-4 h-2 bg-emerald-400 rounded-xs"></div>
+                </div>
+              </div>
+
+              <!-- Mini App Header Navigation -->
+              <div id="sim-header" class="h-11 bg-rose-600 text-white px-3 flex items-center justify-between text-xs font-bold shadow-xs">
+                <span id="sim-header-title">NervJS/Taro 演示</span>
+                <div class="w-14 h-6 rounded-full bg-black/20 flex items-center justify-around px-1 text-[10px]">
+                  <span>•••</span>
+                  <span>◎</span>
+                </div>
+              </div>
+
+              <!-- Mini App Page Content Body -->
+              <div class="flex-1 p-4 overflow-y-auto flex flex-col justify-between">
+                <div class="space-y-4">
+                  <div class="p-3 bg-white rounded-xl shadow-xs border border-slate-100 flex items-center space-x-3">
+                    <div id="sim-avatar-box" class="w-10 h-10 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-base">
+                      T
+                    </div>
+                    <div>
+                      <div id="sim-target-label" class="text-xs font-bold text-slate-800">平台: WeChat 小程序端</div>
+                      <div class="text-[10px] text-slate-400 font-mono">Taro v4.0.8 跨端引擎已就绪</div>
+                    </div>
+                  </div>
+
+                  <div class="p-4 bg-white rounded-xl shadow-xs border border-slate-100 text-center space-y-3">
+                    <p id="sim-display-text" class="text-xs font-bold text-slate-700 leading-snug">探索 Taro 4.0 跨端框架</p>
+                    
+                    <div class="py-2">
+                      <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">响应式计数器</div>
+                      <div id="sim-counter-display" class="text-3xl font-extrabold text-slate-900 font-mono my-1">0</div>
+                    </div>
+
+                    <button 
+                      id="sim-action-btn"
+                      onclick="incrementSimCounter()" 
+                      class="w-full py-2.5 rounded-lg text-white font-bold text-xs shadow transition-transform active:scale-95 bg-rose-600"
+                    >
+                      点击触发 Taro 事件
+                    </button>
+                  </div>
+                </div>
+
+                <div class="text-center text-[10px] text-slate-400 font-mono">
+                  Powered by OpenAtom NervJS/taro
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 5: WAF SECURITY SHIELD & DIAGNOSTIC CONSOLE -->
+    <div id="view-waf" class="hidden space-y-6">
+      <div class="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-xl">
+        <div class="flex items-start justify-between flex-wrap gap-4">
+          <div class="flex items-start space-x-3.5">
+            <div class="p-3 bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/30">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h2 class="text-xl font-black text-white">OpenAtom WAF 动态安全防御诊断台</h2>
+                <span id="waf-incident-badge" class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  HTTP 418 / BLOCKED
+                </span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+                当前请求已被 OpenAtom 安全网关自动流控引擎命中拦截规则。可通过本控制台进行实时网络诊断或提交解封申请。
+              </p>
+            </div>
+          </div>
+
+          <button onclick="resetWafToDefault()" class="text-xs text-slate-400 hover:text-white underline font-mono">
+            重置诊断记录 (Reset Log)
+          </button>
+        </div>
+
+        <!-- Incident Metadata Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          <div class="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Event ID 事件标识</div>
+            <div class="text-xs font-mono text-rose-400 font-bold mt-1 truncate" title="34-dect-198-20261003163201-a6bad062">
+              34-dect-198-20261003163201-a6bad062
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">触发安全规则 (Rule ID)</div>
+            <div class="text-xs font-mono text-amber-400 font-bold mt-1 truncate" title="WAF-SEC-CC-ANOMALY-DETECTION">
+              WAF-SEC-CC-ANOMALY-DETECTION
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">风险评分 (Risk Score)</div>
+            <div id="waf-risk-score" class="text-xs font-mono text-rose-400 font-bold mt-1">
+              89 / 100 (高危频次)
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">来源客户端 IP</div>
+            <div class="text-xs font-mono text-slate-200 font-bold mt-1">
+              198.51.100.42 (Edge-Node)
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagnostic & Appeal Form -->
+        <div id="waf-appeal-box" class="mt-6 p-5 bg-slate-950 rounded-xl border border-slate-800">
+          <h3 class="text-sm font-bold text-slate-200 flex items-center space-x-2">
+            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>实时误报申诉与 IP 白名单自助申请</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            如果您是在进行合规的自动化构建、压力测试或 CI/CD 流水线拉取，请填写申诉说明，网关将在验证通过后立即解除限流。
+          </p>
+
+          <form onsubmit="handleWafAppealSubmit(event)" class="mt-4 space-y-3">
+            <div>
+              <label class="block text-xs text-slate-300 font-medium mb-1">申诉原因 / 用途说明</label>
+              <textarea 
+                id="waf-appeal-reason" 
+                rows="2" 
+                required
+                placeholder="例如：正在进行 Taro 4.0 官方多端 monorepo 构建测试，请求量属于正常 CI 流水线行为。"
+                class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg p-2.5 focus:outline-none focus:border-rose-500 font-sans"
+              ></textarea>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-500">验证码系统状态: <strong class="text-emerald-400 font-mono">CAPTCHA PASSED</strong></span>
+              <button 
+                type="submit" 
+                id="waf-submit-btn"
+                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow transition-colors flex items-center space-x-1.5"
+              >
+                <span>立即提交解封申请</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Whitelisted Success Banner (hidden by default) -->
+        <div id="waf-success-box" class="hidden mt-6 p-5 bg-emerald-950/60 rounded-xl border border-emerald-500/50 text-emerald-200">
+          <div class="flex items-center space-x-3">
+            <svg class="w-6 h-6 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div>
+              <h4 class="text-sm font-bold text-white">申诉已生效！当前客户端已加入临时放行白名单</h4>
+              <p class="text-xs text-emerald-300/80 mt-0.5">
+                Event ID 验证通过，状态码恢复为 HTTP 200 OK，您可继续流畅浏览与拉取 NervJS/taro 代码。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: Clone Repo Modal -->
+  <div id="modal-clone" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+          <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>克隆仓库 (Clone Repository)</span>
+        </h3>
+        <button onclick="closeCloneModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+      </div>
+      <div class="p-5 space-y-4">
+        <!-- Protocol Tab -->
+        <div class="flex border-b border-slate-200">
+          <button onclick="setCloneProtocol('https')" id="proto-https" class="px-4 py-1.5 text-xs font-bold border-b-2 border-rose-600 text-rose-600">HTTPS</button>
+          <button onclick="setCloneProtocol('ssh')" id="proto-ssh" class="px-4 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800">SSH</button>
+        </div>
+
+        <div class="flex items-center">
+          <input id="clone-url-input" type="text" readonly value="https://atomgit.com/NervJS/taro.git" class="flex-1 bg-slate-50 border border-slate-300 text-xs font-mono text-slate-800 rounded-l-md px-3 py-2 select-all focus:outline-none">
+          <button onclick="copyCloneUrl()" class="bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-r-md text-xs font-bold transition-colors">
+            复制
+          </button>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+          <p class="font-semibold text-slate-800">快速本地开发指令：</p>
+          <pre class="p-2 bg-slate-900 text-emerald-400 rounded text-[11px] font-mono leading-relaxed">git clone https://atomgit.com/NervJS/taro.git
+cd taro
+npm install
+npm run dev:weapp</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: New Issue Modal -->
+  <div id="modal-new-issue" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-slate-900">提交新 Issue 到 NervJS/taro</h3>
+        <button onclick="closeNewIssueModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+      </div>
+      <form onsubmit="handleCreateIssue(event)" class="p-5 space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Issue 标题</label>
+          <input id="new-issue-title" type="text" required placeholder="例如：[Bug]: 在 HarmonyOS NEXT 上使用 ScrollView 组件出现滑动回弹异常" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-800 rounded-md p-2 focus:outline-none focus:border-rose-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">所属分类标签</label>
+          <select id="new-issue-tag" class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-800 rounded-md p-2 focus:outline-none">
+            <option value="harmonyos">HarmonyOS NEXT 适配</option>
+            <option value="enhancement">功能增强 (Enhancement)</option>
+            <option value="bug">问题反馈 (Bug Report)</option>
+            <option value="documentation">文档改进 (Docs)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">详细复现步骤与环境</label>
+          <textarea id="new-issue-desc" rows="3" placeholder="请详细提供 Taro 版本、Node 版本及设备环境..." class="w-full bg-slate-50 border border-slate-300 text-xs text-slate-800 rounded-md p-2 focus:outline-none focus:border-rose-500"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeNewIssueModal()" class="px-3.5 py-1.5 rounded-md border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50">取消</button>
+          <button type="submit" class="px-4 py-1.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs">提交 Issue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Global Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-slate-500 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-5 h-5 rounded bg-rose-600 text-white flex items-center justify-center font-bold text-[10px]">A</div>
+        <span class="font-bold text-slate-700">AtomGit 开放原子开源代码托管平台</span>
+        <span>•</span>
+        <span>NervJS / Taro 官方镜像与跨端生态中心</span>
+      </div>
+      <div class="flex items-center space-x-4 text-slate-500">
+        <a href="https://atomgit.com" target="_blank" class="hover:text-slate-900 transition-colors">AtomGit 首页</a>
+        <a href="https://openatom.cn" target="_blank" class="hover:text-slate-900 transition-colors">开放原子基金会</a>
+        <a href="https://taro.zone" target="_blank" class="hover:text-slate-900 transition-colors">Taro 官网</a>
+        <a href="https://github.com/NervJS/taro" target="_blank" class="hover:text-slate-900 transition-colors">GitHub 镜像</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Executable JavaScript Logic -->
+  <script>
+    /* ========================================================
+       DATA REPOSITORY DEFINITIONS
+       ======================================================== */
+    const FILE_DATABASE = [
+      {
+        name: 'packages',
+        path: 'packages',
+        type: 'dir',
+        lastCommitMsg: 'feat(harmony): support HarmonyOS NEXT ArkUI component interop',
+        lastCommitDate: '2 小时前',
+        children: [
+          {
+            name: 'taro-cli',
+            path: 'packages/taro-cli',
+            type: 'dir',
+            lastCommitMsg: 'chore(cli): add taro doctor health check for vite 5',
+            lastCommitDate: '1 天前',
+            content: `// @tarojs/cli 4.0.8 入口核心
+module.exports = require('./dist/index.js');`
+          },
+          {
+            name: 'taro-runtime',
+            path: 'packages/taro-runtime',
+            type: 'dir',
+            lastCommitMsg: 'refactor(runtime): optimize virtual DOM bridge scheduler',
+            lastCommitDate: '3 天前',
+            content: `// @tarojs/runtime 跨端运行时 DOM/BOM 虚拟层
+export * from './dist/runtime.esm.js';`
+          },
+          {
+            name: 'taro-components',
+            path: 'packages/taro-components',
+            type: 'dir',
+            lastCommitMsg: 'feat(components): add unified camera and map controls',
+            lastCommitDate: '4 天前',
+            content: `// @tarojs/components 跨平台组件库定义
+export const View = 'taro-view';
+export const Text = 'taro-text';
+export const Button = 'taro-button';`
+          },
+          {
+            name: 'taro-platform-harmony',
+            path: 'packages/taro-platform-harmony',
+            type: 'dir',
+            lastCommitMsg: 'feat(harmony): support OpenHarmony 4.1 & HarmonyOS NEXT API 12',
+            lastCommitDate: '5 小时前',
+            content: `// Taro HarmonyOS NEXT ArkTS 适配插件
+export default function HarmonyPlugin() {
+  return {
+    name: '@tarojs/platform-harmony-next',
+    target: 'harmonyos-next'
+  };
+}`
+          }
+        ]
+      },
+      {
+        name: '.github',
+        path: '.github',
+        type: 'dir',
+        lastCommitMsg: 'ci: update OpenAtom automated build and security gates',
+        lastCommitDate: '5 天前',
+        content: `# AtomGit & GitHub Actions CI Matrix
+name: Taro CI Suite
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm test`
+      },
+      {
+        name: 'config',
+        path: 'config',
+        type: 'dir',
+        lastCommitMsg: 'build: update rollup and esbuild build matrix',
+        lastCommitDate: '2 周前',
+        content: `// Taro 全局构建与编译配置
+module.exports = {
+  framework: 'react',
+  compiler: 'vite'
+};`
+      },
+      {
+        name: 'package.json',
+        path: 'package.json',
+        type: 'file',
+        size: '4.8 KB',
+        lastCommitMsg: 'chore: release v4.0.8',
+        lastCommitDate: '2 天前',
+        content: `{
+  "name": "taro-monorepo",
+  "private": true,
+  "version": "4.0.8",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm --filter \\"@tarojs/*\\" build",
+    "test": "jest",
+    "dev:weapp": "taro build --type weapp --watch",
+    "dev:harmony": "taro build --type harmony --watch",
+    "dev:alipay": "taro build --type alipay --watch",
+    "dev:h5": "taro build --type h5 --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2",
+    "turbo": "^1.12.0"
+  }
+}`
+      },
+      {
+        name: 'README.md',
+        path: 'README.md',
+        type: 'file',
+        size: '14.2 KB',
+        lastCommitMsg: 'docs: update HarmonyOS NEXT quickstart guide and AtomGit mirror',
+        lastCommitDate: '昨天',
+        content: `# Taro - 多端统一开发解决方案 🚀
+
+[![AtomGit Stars](https://img.shields.io/badge/AtomGit-35.2k%20Stars-red?logo=git)](https://atomgit.com/NervJS/taro)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+**Taro** 是由京东凹凸实验室（O2Team）倾力打造、已捐赠给开放原子开源基金会（OpenAtom Foundation）孵化的开放式跨端跨平台开发框架。
+
+### ✨ 核心特性
+
+- 🎯 **多端统一支持**：一套代码同时编译至 微信小程序、支付宝小程序、百度小程序、抖音小程序、QQ、快手、京东小程序、Web (H5)、React Native 以及最新的 **HarmonyOS NEXT**！
+- ⚛️ **主流框架自由选择**：全面支持 **React**、**Vue 3**、**Nerv** 与 **Preact**。
+- ⚡ **现代化工程体验**：基于 Webpack 5 / Vite，支持 HMR 秒级热更新、TypeScript 首选支持、按需编译。
+- 🧩 **丰富的多端组件与 API**：提供符合 W3C 标准的跨端统一 DOM/BOM 运行时，100% 覆盖小程序原生 API。
+
+### 📦 快速起步
+
+使用 npm 或 npx 安装并快速初始化工程：
+
+\`\`\`bash
+$ npm install -g @tarojs/cli
+$ taro init my-taro-app
+$ cd my-taro-app
+
+# 启动微信小程序开发
+$ npm run dev:weapp
+
+# 启动鸿蒙 HarmonyOS NEXT 开发
+$ npm run dev:harmony
+
+# 启动 Web H5 开发
+$ npm run dev:h5
+\`\`\`
+`
+      }
+    ];
+
+    let ISSUES_DATA = [
+      {
+        id: 15420,
+        title: '[Feature]: Support HarmonyOS NEXT ArkUI declarative animation primitives in Taro 4.0',
+        author: 'chen-developer',
+        tag: 'harmonyos',
+        tagColor: '#7c3aed',
+        tagBg: '#f5eeff',
+        commentsCount: 14,
+        createdAt: '3 小时前'
+      },
+      {
+        id: 15418,
+        title: '[Bug]: Custom tabbar in Alipay mini-program renders blank on rapid page switch',
+        author: 'zhang-san',
+        tag: 'bug',
+        tagColor: '#dc2626',
+        tagBg: '#fee2e2',
+        commentsCount: 7,
+        createdAt: '1 天前'
+      },
+      {
+        id: 15410,
+        title: '[Docs]: Complete tutorial for Taro Vite 5 plugin with SSR hydration',
+        author: 'li-wei-o2',
+        tag: 'documentation',
+        tagColor: '#2563eb',
+        tagBg: '#dbeafe',
+        commentsCount: 3,
+        createdAt: '3 天前'
+      }
+    ];
+
+    const PRS_DATA = [
+      {
+        id: 3892,
+        title: 'fix(router): prevent memory leak during recursive navigateBack in Taro MiniProgram',
+        author: 'wang-tech',
+        branch: 'fix/router-leak',
+        targetBranch: 'master',
+        commentsCount: 5,
+        createdAt: '4 小时前'
+      },
+      {
+        id: 3889,
+        title: 'feat(cli): add native rust compiler bundler flag for 5x build speedup',
+        author: 'taro-core-bot',
+        branch: 'feat/turbopack-bundler',
+        targetBranch: 'next',
+        commentsCount: 18,
+        createdAt: '2 天前'
+      }
+    ];
+
+    /* ========================================================
+       STATE MANAGEMENT
+       ======================================================== */
+    let currentTab = 'code';
+    let currentLang = 'zh';
+    let isStarred = false;
+    let starCount = 35240;
+    let selectedFile = FILE_DATABASE[4]; // README.md
+    let simCounter = 0;
+    let simPlatform = 'weapp';
+    let simThemeColor = '#e11d48';
+
+    /* ========================================================
+       VIEW SWITCHING
+       ======================================================== */
+    function switchTab(tabId) {
+      currentTab = tabId;
+      const views = ['code', 'issues', 'pulls', 'playground', 'waf'];
+      views.forEach(v => {
+        const viewEl = document.getElementById(`view-${v}`);
+        const btnEl = document.getElementById(`tab-btn-${v}`);
+        if (viewEl) viewEl.classList.add('hidden');
+        if (btnEl) {
+          btnEl.className = 'flex items-center space-x-2 px-4 py-2.5 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap transition-colors';
+        }
+      });
+
+      const activeView = document.getElementById(`view-${tabId}`);
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.className = 'tab-active flex items-center space-x-2 px-4 py-2.5 text-xs sm:text-sm whitespace-nowrap transition-colors';
+      }
+    }
+
+    /* ========================================================
+       FILE EXPLORER & VIEWER
+       ======================================================== */
+    function renderFileExplorer() {
+      const tbody = document.getElementById('file-table-body');
+      tbody.innerHTML = '';
+
+      FILE_DATABASE.forEach((file) => {
+        const tr = document.createElement('tr');
+        tr.className = `hover:bg-slate-50 cursor-pointer transition-colors ${selectedFile.name === file.name ? 'bg-rose-50/50' : ''}`;
+        tr.onclick = () => selectFile(file);
+
+        tr.innerHTML = `
+          <td class="py-2.5 px-4 font-medium text-slate-800 flex items-center space-x-2">
+            ${file.type === 'dir' 
+              ? '<svg class="w-4 h-4 text-amber-500 fill-amber-100 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>' 
+              : '<svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>'}
+            <span class="${file.type === 'dir' ? 'font-bold text-slate-800' : 'text-slate-700'}">${file.name}</span>
+          </td>
+          <td class="py-2.5 px-4 text-slate-500 max-w-xs truncate">${file.lastCommitMsg}</td>
+          <td class="py-2.5 px-4 text-slate-400 text-right font-mono whitespace-nowrap">${file.lastCommitDate}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      renderFileContent();
+    }
+
+    function selectFile(file) {
+      selectedFile = file;
+      renderFileExplorer();
+    }
+
+    function renderFileContent() {
+      const pathEl = document.getElementById('file-viewer-path');
+      const sizeEl = document.getElementById('file-viewer-size');
+      const codeBlock = document.getElementById('file-code-block');
+
+      if (pathEl) pathEl.innerText = selectedFile.path;
+      if (sizeEl) sizeEl.innerText = `(${selectedFile.size || '3.5 KB'})`;
+      if (codeBlock) {
+        codeBlock.innerText = selectedFile.content || `// 目录内容: ${selectedFile.name}\n// 点击子文件查看详细源代码实现`;
+      }
+    }
+
+    function copyCurrentFileContent() {
+      if (!selectedFile.content) return;
+      navigator.clipboard.writeText(selectedFile.content).then(() => {
+        const copyText = document.getElementById('copy-text');
+        copyText.innerText = '已复制！';
+        setTimeout(() => {
+          copyText.innerText = '复制代码';
+        }, 2000);
+      });
+    }
+
+    /* ========================================================
+       ISSUE TRACKER SYSTEM
+       ======================================================== */
+    function renderIssues(filteredData = ISSUES_DATA) {
+      const container = document.getElementById('issues-list-container');
+      const badge = document.getElementById('issues-badge-count');
+      if (badge) badge.innerText = ISSUES_DATA.length;
+      
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (filteredData.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-slate-400 text-xs">
+            未检索到匹配的 Issue 问题。
+          </div>
+        `;
+        return;
+      }
+
+      filteredData.forEach(issue => {
+        const item = document.createElement('div');
+        item.className = 'p-4 hover:bg-slate-50 transition-colors flex items-start space-x-3';
+        item.innerHTML = `
+          <svg class="w-4 h-4 text-emerald-600 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div class="flex-1">
+            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+              <a href="javascript:void(0)" class="text-sm font-bold text-slate-900 hover:text-rose-600 transition-colors">
+                ${escapeHtml(issue.title)}
+              </a>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full border border-slate-200" style="background-color: ${issue.tagBg}; color: ${issue.tagColor}">
+                ${issue.tag}
+              </span>
+            </div>
+            <div class="text-xs text-slate-500 mt-1 flex items-center space-x-2">
+              <span>#${issue.id}</span>
+              <span>•</span>
+              <span>由 <strong class="font-medium text-slate-700">${issue.author}</strong> 提交于 ${issue.createdAt}</span>
+            </div>
+          </div>
+          <div class="text-xs text-slate-400 font-mono flex items-center space-x-1 shrink-0">
+            <span>💬</span>
+            <span>${issue.commentsCount}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function filterIssues(query) {
+      const q = query.toLowerCase();
+      const filtered = ISSUES_DATA.filter(i => i.title.toLowerCase().includes(q) || i.author.toLowerCase().includes(q) || i.tag.toLowerCase().includes(q));
+      renderIssues(filtered);
+    }
+
+    function openNewIssueModal() {
+      document.getElementById('modal-new-issue').classList.remove('hidden');
+    }
+
+    function closeNewIssueModal() {
+      document.getElementById('modal-new-issue').classList.add('hidden');
+    }
+
+    function handleCreateIssue(e) {
+      e.preventDefault();
+      const title = document.getElementById('new-issue-title').value;
+      const tag = document.getElementById('new-issue-tag').value;
+
+      const newIssue = {
+        id: Math.floor(15421 + Math.random() * 500),
+        title: title,
+        author: 'AtomGit-Developer',
+        tag: tag,
+        tagColor: '#dc2626',
+        tagBg: '#fee2e2',
+        commentsCount: 0,
+        createdAt: '刚刚'
+      };
+
+      ISSUES_DATA.unshift(newIssue);
+      renderIssues();
+      closeNewIssueModal();
+      document.getElementById('new-issue-title').value = '';
+      document.getElementById('new-issue-desc').value = '';
+    }
+
+    /* ========================================================
+       PULL REQUESTS SYSTEM
+       ======================================================== */
+    function renderPRs() {
+      const container = document.getElementById('prs-list-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      PRS_DATA.forEach(pr => {
+        const item = document.createElement('div');
+        item.className = 'p-4 hover:bg-slate-50 transition-colors flex items-start space-x-3';
+        item.innerHTML = `
+          <svg class="w-4 h-4 text-purple-600 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2"/></svg>
+          <div class="flex-1">
+            <a href="javascript:void(0)" class="text-sm font-bold text-slate-900 hover:text-rose-600 transition-colors">
+              ${pr.title}
+            </a>
+            <div class="text-xs text-slate-500 mt-1 flex items-center space-x-2 font-mono">
+              <span>#${pr.id}</span>
+              <span>•</span>
+              <span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[11px]">${pr.branch}</span>
+              <span>→</span>
+              <span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[11px]">${pr.targetBranch}</span>
+              <span>•</span>
+              <span class="font-sans text-slate-400">${pr.createdAt}</span>
+            </div>
+          </div>
+          <div class="text-xs text-slate-400 font-mono flex items-center space-x-1">
+            <span>💬</span>
+            <span>${pr.commentsCount}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    /* ========================================================
+       TARO 4.0 MULTI-PLATFORM SIMULATOR
+       ======================================================== */
+    function setSimPlatform(plat) {
+      simPlatform = plat;
+      const platforms = ['weapp', 'alipay', 'harmony', 'h5'];
+      platforms.forEach(p => {
+        const btn = document.getElementById(`sim-plat-${p}`);
+        if (btn) {
+          if (p === plat) {
+            btn.className = 'px-3 py-1.5 rounded-md bg-white text-slate-800 shadow-xs font-bold';
+          } else {
+            btn.className = 'px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 font-semibold';
+          }
+        }
+      });
+
+      const topbarBrand = document.getElementById('sim-status-brand');
+      const targetLabel = document.getElementById('sim-target-label');
+      const headerTitle = document.getElementById('sim-header-title');
+
+      if (plat === 'weapp') {
+        topbarBrand.innerText = 'WeChat Mini Program';
+        targetLabel.innerText = '平台: 微信小程序 (WeChat Applet)';
+        headerTitle.innerText = '微信小程序预览';
+      } else if (plat === 'alipay') {
+        topbarBrand.innerText = 'Alipay Mini Program';
+        targetLabel.innerText = '平台: 支付宝小程序 (Alipay JSAPI)';
+        headerTitle.innerText = '支付宝小程序预览';
+      } else if (plat === 'harmony') {
+        topbarBrand.innerText = 'HarmonyOS NEXT ArkUI';
+        targetLabel.innerText = '平台: 鸿蒙原生 ArkUI 渲染引擎';
+        headerTitle.innerText = 'HarmonyOS 原生应用';
+      } else {
+        topbarBrand.innerText = 'Web Mobile H5 Browser';
+        targetLabel.innerText = '平台: 移动端 Web (H5 Responsive)';
+        headerTitle.innerText = 'H5 浏览器模式';
+      }
+    }
+
+    function updateSimulatorPreview() {
+      const customText = document.getElementById('sim-custom-text').value || '探索 Taro 4.0 跨端框架';
+      document.getElementById('sim-display-text').innerText = customText;
+      document.getElementById('sim-code-preview-text').innerText = customText;
+    }
+
+    function incrementSimCounter() {
+      simCounter++;
+      document.getElementById('sim-counter-display').innerText = simCounter;
+      document.getElementById('sim-code-count').innerText = simCounter;
+    }
+
+    function changeSimTheme(color) {
+      simThemeColor = color;
+      document.getElementById('sim-header').style.backgroundColor = color;
+      document.getElementById('sim-action-btn').style.backgroundColor = color;
+    }
+
+    /* ========================================================
+       WAF SECURITY CONSOLE & APPEAL LOGIC
+       ======================================================== */
+    function handleWafAppealSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('waf-submit-btn');
+      btn.innerHTML = `<span class="animate-spin mr-1">⏳</span> 正在提交网关规则验证...`;
+      btn.disabled = true;
+
+      setTimeout(() => {
+        document.getElementById('waf-appeal-box').classList.add('hidden');
+        document.getElementById('waf-success-box').classList.remove('hidden');
+        
+        const badge = document.getElementById('waf-incident-badge');
+        badge.className = 'px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        badge.innerText = 'HTTP 200 / WHITELISTED';
+
+        const riskScore = document.getElementById('waf-risk-score');
+        riskScore.className = 'text-xs font-mono text-emerald-400 font-bold mt-1';
+        riskScore.innerText = '5 / 100 (已加入信任白名单)';
+
+        const navPill = document.getElementById('nav-waf-pill');
+        navPill.className = 'px-2.5 py-1 text-xs rounded font-medium flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        document.getElementById('nav-waf-text').innerText = 'WAF白名单通过';
+
+        const tabBadge = document.getElementById('waf-badge-tab');
+        tabBadge.className = 'text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 font-bold';
+        tabBadge.innerText = '200 OK';
+      }, 1000);
+    }
+
+    function resetWafToDefault() {
+      document.getElementById('waf-appeal-box').classList.remove('hidden');
+      document.getElementById('waf-success-box').classList.add('hidden');
+      
+      const badge = document.getElementById('waf-incident-badge');
+      badge.className = 'px-2.5 py-0.5 text-xs font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30';
+      badge.innerText = 'HTTP 418 / BLOCKED';
+
+      const riskScore = document.getElementById('waf-risk-score');
+      riskScore.className = 'text-xs font-mono text-rose-400 font-bold mt-1';
+      riskScore.innerText = '89 / 100 (高危频次)';
+
+      const navPill = document.getElementById('nav-waf-pill');
+      navPill.className = 'px-2.5 py-1 text-xs rounded font-medium flex items-center space-x-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/40';
+      document.getElementById('nav-waf-text').innerText = 'WAF事件 418';
+
+      const tabBadge = document.getElementById('waf-badge-tab');
+      tabBadge.className = 'text-[10px] px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-700 font-bold';
+      tabBadge.innerText = 'Event 418';
+
+      const btn = document.getElementById('waf-submit-btn');
+      btn.innerHTML = `<span>立即提交解封申请</span><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
+      btn.disabled = false;
+    }
+
+    /* ========================================================
+       GIT ACTIONS & UTILITIES
+       ======================================================== */
+    function handleToggleStar() {
+      const btn = document.getElementById('star-btn');
+      const label = document.getElementById('star-btn-label');
+      const countEl = document.getElementById('star-count');
+
+      if (!isStarred) {
+        starCount++;
+        isStarred = true;
+        btn.className = 'px-3 py-1.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-300 shadow-xs flex items-center space-x-1.5 transition-all';
+        label.innerText = '已标星 Starred';
+      } else {
+        starCount--;
+        isStarred = false;
+        btn.className = 'px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 shadow-xs flex items-center space-x-1.5 transition-all';
+        label.innerText = '标星 Star';
+      }
+      countEl.innerText = starCount.toLocaleString();
+    }
+
+    function handleWatchNotice() {
+      alert('已成功将 NervJS/taro 加入您的 AtomGit 关注动态流！');
+    }
+
+    function handleForkNotice() {
+      alert('正在将 NervJS/taro 派生到您的 AtomGit 个人空间 (your-account/taro)...');
+    }
+
+    function handleBranchChange(branch) {
+      document.getElementById('latest-commit-text').innerText = `分支 [${branch}] 最新提交: update package build chain and runtime bindings`;
+    }
+
+    function handleGlobalSearch(val) {
+      if (!val.trim()) return;
+      if (val.toLowerCase().includes('issue') || val.toLowerCase().includes('bug')) {
+        switchTab('issues');
+        document.getElementById('issue-search-input').value = val;
+        filterIssues(val);
+      }
+    }
+
+    function openCloneModal() {
+      document.getElementById('modal-clone').classList.remove('hidden');
+    }
+
+    function closeCloneModal() {
+      document.getElementById('modal-clone').classList.add('hidden');
+    }
+
+    function setCloneProtocol(proto) {
+      const input = document.getElementById('clone-url-input');
+      const btnHttps = document.getElementById('proto-https');
+      const btnSsh = document.getElementById('proto-ssh');
+
+      if (proto === 'https') {
+        input.value = 'https://atomgit.com/NervJS/taro.git';
+        btnHttps.className = 'px-4 py-1.5 text-xs font-bold border-b-2 border-rose-600 text-rose-600';
+        btnSsh.className = 'px-4 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800';
+      } else {
+        input.value = 'git@atomgit.com:NervJS/taro.git';
+        btnSsh.className = 'px-4 py-1.5 text-xs font-bold border-b-2 border-rose-600 text-rose-600';
+        btnHttps.className = 'px-4 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800';
+      }
+    }
+
+    function copyCloneUrl() {
+      const input = document.getElementById('clone-url-input');
+      navigator.clipboard.writeText(input.value).then(() => {
+        alert('Git 克隆地址已成功复制到剪贴板！');
+      });
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      document.getElementById('lang-label').innerText = currentLang === 'zh' ? '中文 / EN' : 'EN / 中文';
+      if (currentLang === 'en') {
+        document.getElementById('repo-desc').innerText = 'Taro is an open cross-end and cross-platform solution following React/Vue syntax. Build once, run on WeChat, Alipay, Baidu, ByteDance, QQ, JD mini-programs, Web H5, React Native and HarmonyOS NEXT!';
+        document.getElementById('tab-label-code').innerText = 'Code';
+        document.getElementById('tab-label-issues').innerText = 'Issues';
+        document.getElementById('tab-label-pulls').innerText = 'Pull Requests';
+        document.getElementById('tab-label-waf').innerText = 'WAF Shield';
+      } else {
+        document.getElementById('repo-desc').innerText = 'Taro 是一套遵循 React/Vue 语法规范的多端统一开发解决方案，支持编写一套代码输出到微信小程序、支付宝、百度、抖音、QQ、京东小程序、Web (H5)、React Native 以及 HarmonyOS NEXT！';
+        document.getElementById('tab-label-code').innerText = '代码 Code';
+        document.getElementById('tab-label-issues').innerText = '问题 (Issues)';
+        document.getElementById('tab-label-pulls').innerText = '合并请求 (PR)';
+        document.getElementById('tab-label-waf').innerText = 'WAF 安全防御 & 申诉';
+      }
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&',
+          '<': '<',
+          '>': '>',
+          '"': '"',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+
+    /* ========================================================
+       APP INITIALIZATION
+       ======================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderFileExplorer();
+      renderIssues();
+      renderPRs();
+      updateSimulatorPreview();
+    });
+  </script>
+
+
+<!-- FlashLite Natural Link & Navigation Engine -->
+<script id="flashlite-real-link-engine">
+(function() {
+  'use strict';
+
+  function setupNaturalLinks() {
+    var links = document.querySelectorAll('a[href]');
+    
+    links.forEach(function(el) {
+      if (el.dataset.flashliteHandled === 'true') return;
+      el.dataset.flashliteHandled = 'true';
+
+      var href = (el.getAttribute('href') || '').trim();
+
+      // For external URLs: ensure safe opening in new tab
+      if (/^https?:\/\//i.test(href)) {
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+  }
+
+  // Smooth anchor scrolling without preventing normal JS behavior
+  document.addEventListener('click', function(e) {
+    var target = e.target;
+    if (!(target instanceof Element)) return;
+    var link = target.closest('a[href]');
+    if (!link) return;
+
+    var href = (link.getAttribute('href') || '').trim();
+
+    // Anchor links (#id)
+    if (href.startsWith('#') && href.length > 1) {
+      var targetId = href.slice(1);
+      var targetElem = document.getElementById(targetId) || document.querySelector('[name="' + targetId + '"]');
+      if (targetElem) {
+        e.preventDefault();
+        targetElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+    }
+
+    // External links: open in new tab if not already doing so
+    if (/^https?:\/\//i.test(href)) {
+      e.preventDefault();
+      window.open(href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // Notice: For "#", "javascript:void(0)", buttons, or relative links,
+    // do NOT call e.preventDefault()! Allow the site's own JavaScript and components to execute naturally.
+  }, false);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupNaturalLinks);
+  } else {
+    setupNaturalLinks();
+  }
+
+  try {
+    var observer = new MutationObserver(function() { setupNaturalLinks(); });
+    observer.observe(document.documentElement || document.body, { childList: true, subtree: true });
+  } catch(e) {}
+})();
+</script>
+
+</body>
+</html>
